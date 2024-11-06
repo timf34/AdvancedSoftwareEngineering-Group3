@@ -18,3 +18,6 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+# Adding to .gitignore after we add the actual token
+constants/MapboxToken.ts
