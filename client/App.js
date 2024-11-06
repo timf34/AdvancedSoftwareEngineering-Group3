@@ -4,8 +4,8 @@ import MapView, { Marker } from 'react-native-maps';
 
 export default function App() {
   const initialRegion = {
-    latitude: 37.78825,    // Replace with your desired latitude
-    longitude: -122.4324,  // Replace with your desired longitude
+    latitude: 53.3498,      // Dublin's latitude
+    longitude: -6.2603,     // Dublin's longitude
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
