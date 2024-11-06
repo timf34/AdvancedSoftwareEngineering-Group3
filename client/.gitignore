@@ -18,3 +18,6 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+# Adding to gitignore before adding mapbox access token
+app.json
