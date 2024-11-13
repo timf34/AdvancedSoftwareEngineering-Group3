@@ -3,7 +3,7 @@ import json
 import time
 
 # URL of Open Data
-APIKEY = ''
+APIKEY = '3386ce10aca77dde762ab5c2de0177f7405cb6b3'
 url = 'https://api.jcdecaux.com/vls/v1/stations?contract=dublin&apiKey=' + APIKEY
 
 poll_interval = 10
