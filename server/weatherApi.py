@@ -1,26 +1,19 @@
 import requests
-import time
-import xml.etree.ElementTree as ET
+import numpy as np
 
 long = '-6.266155'
 lat = '53.350140'
-url = 'http://openaccess.pf.api.met.ie/metno-wdb2ts/locationforecast?lat='+ lat + ';long='+ long
+url = 'https://api.open-meteo.com/v1/forecast?latitude='+ lat +'&longitude='+ long +'&hourly=temperature_2m,apparent_temperature,precipitation,rain,snowfall,cloud_cover,wind_speed_10m&forecast_days=1&models=ecmwf_ifs025';
 
+# Fetch the geoJSON data from the URL
+response = requests.get(url)
 
+# Check if the request was successful
+if response.status_code == 200:
+    data = response.json()['hourly']
+    weather = np.column_stack((data['time'], data['temperature_2m'], data['apparent_temperature'], data['precipitation'], data['rain'], data['snowfall'], data['cloud_cover'], data['wind_speed_10m'] ))
+    print(weather)
 
-poll_interval = 10
+else:
+    print("Failed to retrieve data:", response.status_code)
 
-while True:
-    # Fetch the geoJSON data from the URL
-    response = requests.get(url)
-    # Parse the XML data
-    if response.status_code == 200:
-        root = ET.fromstring(response.content)
-
-    # Now you can navigate through the XML elements
-        for child in root:
-            print("Tag:", child.tag)
-            print("Attributes:", child.attrib)
-            print("Text:", child.text)
-    else:
-        print("Failed to retrieve data:", response.status_code)
