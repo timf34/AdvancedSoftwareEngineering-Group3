@@ -8,3 +8,10 @@ npm expo install
 
 npx expo start
 ```
+
+To update the SDK:
+```bash
+npm install expo@{version number}
+npx expo install --check
+npx expo start
+```
