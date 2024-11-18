@@ -15,8 +15,8 @@ export default function App() {
         <MapView style={styles.map} initialRegion={initialRegion}>
           {/* Add a marker */}
           <Marker
-              coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
-              title="My Marker"
+              coordinate={{ latitude: 53.3498, longitude: -6.2603 }}
+              title="Dublin"
               description="Marker description"
           />
         </MapView>
