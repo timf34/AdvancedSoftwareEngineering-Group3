@@ -22,6 +22,7 @@ async def root():
 
 @app.post("/echo")
 async def echo_message(message: Message):
+    print(f"Received message: {message.text}")
     return {"message": f"'{message.text}' sent from server"}
 
 

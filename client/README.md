@@ -5,8 +5,7 @@ Ensure that your devices are connected to the same network
 
 To set up this project:
 ```bash
-npm install expo 
-
+npm install --legacy-peer-deps
 npx expo start
 ```
 
