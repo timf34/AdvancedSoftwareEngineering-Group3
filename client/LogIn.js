@@ -9,6 +9,16 @@ export default function LoginScreen({navigation}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+const handleLogin = () => {
+  if (username == null || password == null) {
+    alert("All fields have to be filled before logging in!")
+  }
+  console.log('username: ', username)
+  console.log('password: ', password)
+  alert(`Username: ${username}\nPassword: ${password}`);
+  navigation.goBack();
+};
+
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         {/* <Text>Login Screen</Text> */}
@@ -29,10 +39,16 @@ export default function LoginScreen({navigation}) {
                 placeholder="Password"
                 value={password}
                 onChangeText={(text) => setPassword(text)}
-                onSubmitEditing={() => alert(`You have logged in`)}
+                // onSubmitEditing={() => alert(`You have logged in`)}
+                secureTextEntry
                 style={styles.TextInput}
             />
         </SafeAreaView>
+
+        <TouchableOpacity style={styles.TouchableOpacity} onPress={handleLogin}
+          color="#841584">
+          <Text>Log In</Text>
+         </TouchableOpacity>
       </View>
     );
   }
@@ -57,5 +73,25 @@ const styles = StyleSheet.create({
     marginBottom: 15, // Adds space between inputs
     textAlign: 'center',
     textAlignVertical: 'center',
-  }
+  },
+  TouchableOpacity: {
+    position: 'absolute', // Positioning over the map
+    alignItems: 'center',
+    left: '35%',
+    top: '60%',
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  TouchableOpacityText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });

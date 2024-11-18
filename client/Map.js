@@ -42,7 +42,7 @@ export default function MapScreen({navigation}) {
       position: 'absolute', // Positioning over the map
       alignItems: 'center',
       left: '70%',
-      top: '50%',
+      top: '0%',
       backgroundColor: '#007bff',
       paddingVertical: 10,
       paddingHorizontal: 40,
