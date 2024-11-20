@@ -1,24 +1,24 @@
-import requests
-import json
-import time
-import datetime
+########### Python 3.2 #############
+import urllib.request, json
 
-# URL of Open Data
-APIKEY = '704561a2a3964364bf1955be3e3ab53f'
-url = 'https://api.jcdecaux.com/vls/v1/stations?contract=dublin&apiKey=' + APIKEY
+try:
+    url = "https://api.nationaltransport.ie/gtfsr/v2/gtfsr?format=json"
 
-poll_interval = 10
+    hdr ={
+    # Request headers
+    'Cache-Control': 'no-cache',
+    'x-api-key': '704561a2a3964364bf1955be3e3ab53f',
+    }
 
-while True:
-    # Fetch the geoJSON data from the URL
-    response = requests.get(url)
+    req = urllib.request.Request(url, headers=hdr)
 
-    # Check if the request was successful
-    if response.status_code == 200:
-        for item in response.json():
-            print(item['name'], ' ', item['available_bikes'], (int(item['last_update'])))
-
-    else:
-        print("Failed to retrieve data:", response.status_code)
-
-    time.sleep(poll_interval)
+    req.get_method = lambda: 'GET'
+    response = urllib.request.urlopen(req)
+    print(response.getcode())
+    #print(json.loads(response.read().decode()))
+    with open("data.json", "w") as f:
+        json.dump(json.loads(response.read().decode()), f)
+    #filetest.close()
+except Exception as e:
+    print(e)
+####################################
