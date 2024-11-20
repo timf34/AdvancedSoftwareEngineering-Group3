@@ -2,6 +2,7 @@ import requests
 from xml.dom.minidom import parseString
 import time
 import datetime
+import xml.etree.ElementTree as ET
 
 class luasAPI:
 
@@ -35,7 +36,23 @@ class luasAPI:
 
         # check if the request was succesful
         if self.response.status_code == 200:
-            doc = parseString(self.response.content)
-            # TODO: complete xml code
-            print(doc.getElementsByTagName('')[0].firstChild.nodeValue)
+            # parse xml content
+            root = ET.fromstring(self.response.content)
 
+            # initialise dictionaries to store tram info by direction
+            tram_info = {"Inbound": [], "Outbound": []}
+
+            # iterate through each direction
+            for direction in root.findall('direction'):
+                direction_name = direction.get('name')
+                for tram in direction.findall('tram'):
+                    due_mins = tram.get('dueMins')
+                    destination = tram.get('destination')
+                    tram_info[direction_name].append({"dueMins": due_mins, "destination": destination})
+
+            # print the extracted tram information
+            print("Inbound Trams:", tram_info["Inbound"])
+            print("Outbound Trams:", tram_info["Outbound"])
+
+luas = luasAPI()
+luas.get('ran')
