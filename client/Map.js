@@ -15,14 +15,7 @@ export default function MapScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={initialRegion}>
-        {/* Add a marker */}
-        <Marker
-          coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
-          title="My Marker"
-          description="Marker description"
-        />
-      </MapView>
+      <MapView style={styles.map} initialRegion={initialRegion}> </MapView>
       <TouchableOpacity style={styles.TouchableOpacity} onPress={() => navigation.navigate('LoginScreen')}
         color="#841584">
         <Text>Log In</Text>
