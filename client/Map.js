@@ -1,21 +1,18 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
 import { StyleSheet, View, Button, TouchableOpacity, Text } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 export default function MapScreen({ navigation }) {
   const initialRegion = {
-    latitude: 53.3498,      // Dublin's latitude
-    longitude: -6.2603,     // Dublin's longitude
+    latitude: 53.3498,
+    longitude: -6.2603,
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   };
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={initialRegion}> </MapView>
+      <MapView style={styles.map} initialRegion={initialRegion}></MapView>
       <TouchableOpacity style={styles.TouchableOpacity} onPress={() => navigation.navigate('LoginScreen')}
         color="#841584">
         <Text>Log In</Text>
@@ -32,7 +29,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   TouchableOpacity: {
-    position: 'absolute', // Positioning over the map
+    position: 'absolute',
     alignItems: 'center',
     left: '70%',
     top: '0%',
