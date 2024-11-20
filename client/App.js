@@ -17,7 +17,7 @@ export default function App() {
     try {
       const baseUrl = Platform.OS === 'web'
       ? 'http://localhost:8000'
-      : 'http://192.168.13.1:8000'
+      : process.env.EXPO_PUBLIC_API_URL;
       console.log(`Sending request to ${baseUrl}/echo`);
 
       const response = await fetch(`${baseUrl}/echo`, {
