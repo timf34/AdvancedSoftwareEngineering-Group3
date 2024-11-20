@@ -15,7 +15,10 @@ export default function App() {
 
   const sendToServer = async () => {
     try {
-      const baseUrl = Platform.OS === 'web' ? 'http://localhost:8000' : 'http://10.0.2.2:8000';
+      const baseUrl = Platform.OS === 'web'
+      ? 'http://localhost:8000'
+      : 'http://192.168.13.1:8000'
+      console.log(`Sending request to ${baseUrl}/echo`);
 
       const response = await fetch(`${baseUrl}/echo`, {
         method: 'POST',
@@ -25,11 +28,16 @@ export default function App() {
         body: JSON.stringify({ text: inputText }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log('Server response:', data);
       setServerResponse(data.message);
     } catch (error) {
-      console.error('Error:', error);
-      setServerResponse('Error connecting to server');
+      console.error('Error details:', error);
+      setServerResponse(`Error: ${error.message}`);
     }
   };
 
