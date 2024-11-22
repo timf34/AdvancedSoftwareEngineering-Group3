@@ -52,17 +52,19 @@ export default function MapScreen({ navigation }) {
     }
 
     return (
-      <MapView style={styles.map} initialRegion={initialRegion}>
+      <View style={styles.container}>
+        <MapView style={styles.map} initialRegion={initialRegion}>
+          <Marker style={styles.marker}
+            coordinate={{ latitude: 53.3498, longitude: -6.2603 }}
+            title="Dublin"
+            description="Marker description"
+          />
+        </MapView>
         <TouchableOpacity style={styles.TouchableOpacity} onPress={() => navigation.navigate('LoginScreen')}
           color="#841584">
           <Text>Log In</Text>
         </TouchableOpacity>
-        <Marker
-          coordinate={{ latitude: 53.3498, longitude: -6.2603 }}
-          title="Dublin"
-          description="Marker description"
-        />
-      </MapView>
+      </View>
     );
   };
 
@@ -91,6 +93,9 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? {
       height: '100vh',
     } : {}),
+  },
+  marker: {
+    position: 'absolute'
   },
   map: {
     flex: 0.7,
