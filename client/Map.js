@@ -14,6 +14,37 @@ export default function MapScreen({ navigation }) {
     longitudeDelta: 0.0421,
   };
 
+  const weatherInfo = async () => {
+    try {
+      const baseUrl = Platform.OS === 'web'
+        ? 'http://localhost:8000'
+        : process.env.EXPO_PUBLIC_API_URL;
+      console.log(`Sending request to ${baseUrl}/weather`);
+
+      const response = await fetch(`${baseUrl}/weather`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // body: JSON.stringify({ text: inputText }),
+        //body: {initialRegion[latitude]: initialRegion[longitude]}, to be fixed
+        body: 'weather'
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Server response:', data);
+      setServerResponse(data.message);
+    } catch (error) {
+      console.error('Error details:', error);
+      setServerResponse(`Error: ${error.message}`);
+    }
+
+  };
+
   const sendToServer = async () => {
     try {
       const baseUrl = Platform.OS === 'web'
@@ -71,6 +102,7 @@ export default function MapScreen({ navigation }) {
   return (
     <View style={styles.container}>
       {renderMap()}
+      {weatherInfo()}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
