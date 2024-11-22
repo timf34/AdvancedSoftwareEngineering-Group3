@@ -1,3 +1,4 @@
+from base_api import BaseAPI
 import requests
 import json
 import time
@@ -6,10 +7,10 @@ import datetime
 # URL of Open Data
 APIKEY = '3386ce10aca77dde762ab5c2de0177f7405cb6b3'
 
-class bikeAPI:
+class bikeAPI(BaseAPI):
 
     def __init__(self):
-        pass
+        super().__init__()
 
     def get(self, apiKey):
         # URL of Open Data
