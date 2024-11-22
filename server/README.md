@@ -8,6 +8,13 @@ cd server
 python main.py
 ```
 
+## For running the server through Docker 
+
+Do the following from the server directory:
+```bash 
+docker build -t server . 
+docker run -p 8000:8000 server
+```
 
 ### APIs
 
