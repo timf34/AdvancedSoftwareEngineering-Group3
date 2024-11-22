@@ -1,2 +1,5 @@
 ./assets/shapes.txt
 ./assets/stops.txt
+./assets/stop_times.txt
+
+*.pyc
