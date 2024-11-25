@@ -16,12 +16,10 @@ logger = logging.getLogger(__name__)
 class Message(BaseModel):
     text: str
 
-class Username(BaseModel):
+class Login(BaseModel):
     username: str
-
-class Password(BaseModel):
     password: str
-
+    
 app = FastAPI()
 
 # Configure CORS with logging
@@ -56,14 +54,14 @@ async def echo_message(message: Message):
         raise
 
 @app.post("/login")
-async def login_data(username: Username):
-    logger.info(f"Received message in login endpoint: {username.username}")
+async def login_data(login: Login):
+    logger.info(f"Received message in login endpoint: {login.username} {login.password}")
     try:
-        return {"login details": f"'{username.username}' sent from server"}
+        return {"login details": f"'username={login.username}' 'password={login.password}'sent from server"}
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
         raise
 
 if __name__ == "__main__":
     logger.info("Starting FastAPI server...")
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run(app, host="10.6.107.53", port=8000, log_level="debug") # changing host to Keith ipv4 address

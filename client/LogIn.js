@@ -5,6 +5,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 
 
 export default function LoginScreen({ navigation }) {
+  const [serverResponse, setServerResponse] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const ref2 = React.useRef(null);
@@ -30,10 +31,10 @@ export default function LoginScreen({ navigation }) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ username: username}),
+          body: JSON.stringify({ username: username, password: password}),
         });
         
-        console.log("JSON BODY:" + JSON.stringify({ text: username}));
+        console.log("JSON BODY:" + JSON.stringify({text: username, text: password}));
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
