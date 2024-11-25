@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
 export default function MapScreen({ navigation }) {
     const [webSocket, setWebSocket] = useState(null);
-    const [location, setLocation] = useState({ latitude: 53.3498, longitude: -6.2603 });
+    const [location, setLocation] = useState(null); // No hardcoded initial location
     const [errorMessage, setErrorMessage] = useState('');
     const mapRef = useRef(null); // Reference to the MapView
 
@@ -47,6 +47,14 @@ export default function MapScreen({ navigation }) {
                 return;
             }
 
+            // Fetch initial location
+            const currentLocation = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.BestForNavigation,
+            });
+            const { latitude, longitude } = currentLocation.coords;
+            setLocation({ latitude, longitude });
+
+            // Set up continuous location tracking
             const locationSubscription = await Location.watchPositionAsync(
                 {
                     accuracy: Location.Accuracy.BestForNavigation,
@@ -79,10 +87,12 @@ export default function MapScreen({ navigation }) {
 
     // Function to Send Location to WebSocket
     const sendLocation = () => {
-        if (webSocket) {
+        if (webSocket && location) {
             const locationData = JSON.stringify(location);
             webSocket.send(locationData);
             console.log('Sent location:', locationData);
+        } else if (!location) {
+            Alert.alert('Location not available', 'Please wait for the GPS to fetch your location.');
         } else {
             Alert.alert('WebSocket not connected', 'Please wait for the WebSocket connection to establish.');
         }
@@ -92,7 +102,7 @@ export default function MapScreen({ navigation }) {
         <View style={styles.container}>
             {errorMessage ? (
                 <Text style={styles.error}>{errorMessage}</Text>
-            ) : (
+            ) : location ? (
                 <>
                     <MapView
                         ref={mapRef}
@@ -114,6 +124,8 @@ export default function MapScreen({ navigation }) {
                         <Text style={styles.buttonText}>Send Location</Text>
                     </TouchableOpacity>
                 </>
+            ) : (
+                <Text style={styles.loadingText}>Fetching your location...</Text>
             )}
         </View>
     );
@@ -147,5 +159,11 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
         fontSize: 18,
         color: 'red',
+    },
+    loadingText: {
+        flex: 1,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: 18,
     },
 });
