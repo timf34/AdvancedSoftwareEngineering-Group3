@@ -16,6 +16,12 @@ logger = logging.getLogger(__name__)
 class Message(BaseModel):
     text: str
 
+class Username(BaseModel):
+    username: str
+
+class Password(BaseModel):
+    password: str
+
 app = FastAPI()
 
 # Configure CORS with logging
@@ -45,6 +51,15 @@ async def echo_message(message: Message):
     logger.info(f"Received message in echo endpoint: {message.text}")
     try:
         return {"message": f"'{message.text}' sent from server"}
+    except Exception as e:
+        logger.error(f"Error processing message: {str(e)}")
+        raise
+
+@app.post("/login")
+async def login_data(username: Username):
+    logger.info(f"Received message in login endpoint: {username.username}")
+    try:
+        return {"login details": f"'{username.username}' sent from server"}
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
         raise

@@ -9,7 +9,7 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState("");
   const ref2 = React.useRef(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (username == '' || password == '') {
       alert("All fields have to be filled before logging in!")
     }
@@ -18,6 +18,34 @@ export default function LoginScreen({ navigation }) {
       console.log('password: ', password)
       alert(`Username: ${username}\nPassword: ${password}`)
       navigation.goBack()
+
+      try {
+        const baseUrl = Platform.OS === 'web'
+          ? 'http://localhost:8000'
+          : process.env.EXPO_PUBLIC_API_URL;
+        console.log(`Sending request to ${baseUrl}/login`);
+  
+        const response = await fetch(`${baseUrl}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username: username}),
+        });
+        
+        console.log("JSON BODY:" + JSON.stringify({ text: username}));
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log('Server response:', data);
+        setServerResponse(data.message);
+      } catch (error) {
+        console.error('Error details:', error);
+        setServerResponse(`Error: ${error.message}`);
+      }
     }
   };
 
