@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import logging
@@ -48,6 +48,42 @@ async def echo_message(message: Message):
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
         raise
+
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+
+connection = ConnectionManager()
+
+
+@app.websocket("/ws/location")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            logging.info(f"Received data: {data}")
+            await manager.broadcast(f"Received location: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        logging.info("WebSocket disconnected")
+
 
 if __name__ == "__main__":
     logger.info("Starting FastAPI server...")
