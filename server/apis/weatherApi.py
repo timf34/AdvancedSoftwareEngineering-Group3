@@ -1,10 +1,10 @@
 import requests
 import numpy as np
-from base_api import BaseAPI
+# from base_api import BaseAPI
     # Dublin loc
     # long = '-6.266155'
     # lat = '53.350140'
-class weatherAPI(BaseAPI):
+class weatherAPI():# (BaseAPI):
     def __init__(self):
         super().__init__()
 
@@ -27,5 +27,5 @@ class weatherAPI(BaseAPI):
 
     
 # To test
-# w = weatherAPI()
-# w.get(lat='53.350140', lng='-6.266155')
+w = weatherAPI()
+w.get('53.350140', '-6.266155')
