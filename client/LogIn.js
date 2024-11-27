@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useState, useRef } from 'react';
 import { StyleSheet, View, SafeAreaView, TextInput, Button, TouchableOpacity, Text, KeyboardAvoidingView, Platform } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
-import CryptoJS from 'crypto-js';
 
 export default function LoginScreen({ navigation }) {
   const [serverResponse, setServerResponse] = useState("");
@@ -33,7 +32,7 @@ export default function LoginScreen({ navigation }) {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ username: CryptoJS.AES.encrypt(username, passphrase), password: CryptoJS.AES.encrypt(password, passphrase)}),
+          body: JSON.stringify({username: username, password: password}),
         });
 
         if (!response.ok) {
