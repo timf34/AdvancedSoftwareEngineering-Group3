@@ -17,7 +17,7 @@ export default function LoginScreen({ navigation }) {
     else {
       console.log('username: ', username)
       console.log('password: ', password)
-      alert(`Username: ${username}\nPassword: ${password}`)
+      // alert(`Username: ${username}\nPassword: ${password}`)
       navigation.goBack()
 
       try {
@@ -33,14 +33,13 @@ export default function LoginScreen({ navigation }) {
           },
           body: JSON.stringify({ username: username, password: password}),
         });
-        
-        console.log("JSON BODY:" + JSON.stringify({text: username, text: password}));
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
   
         const data = await response.json();
+        alert(JSON.stringify(data))
         console.log('Server response:', data);
         setServerResponse(data.message);
       } catch (error) {

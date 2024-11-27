@@ -15,7 +15,7 @@ class Server:
         self.app = FastAPI()
 
         # Instantiate Login class
-        self.login_logic = Login()
+        self.login_logic = Login(self.app, self.logger)
 
         # Configure CORS
         self.configure_cors()
@@ -27,7 +27,7 @@ class Server:
         self.register_routes()
 
         # Login function
-        Login.handle_login()
+        self.login_logic.handle_login()
 
 
     def configure_logging(self):
@@ -70,15 +70,6 @@ class Server:
             except Exception as e:
                 self.logger.error(f"Error processing message: {str(e)}")
                 raise
-
-        # @self.app.post("/login")
-        # async def login_data(login: Login):
-        #     self.logger.info(f"Received login attempt: {login.username}")
-        #     try:
-        #         return {"login details": f"'{login.username, login.password}' sent from server"}
-        #     except Exception as e:
-        #         self.logger.error(f"Error processing login: {str(e)}")
-        #         raise
 
     def run(self, host="0.0.0.0", port=8000):
         self.logger.info("Starting FastAPI server...")
