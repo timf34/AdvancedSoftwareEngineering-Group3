@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import logging
 import uvicorn
 import sys
+from apis.weatherApi import weatherAPI
 
 # Configure logging
 logging.basicConfig(
@@ -48,6 +49,16 @@ async def echo_message(message: Message):
     except Exception as e:
         logger.error(f"Error processing message: {str(e)}")
         raise
+
+@app.get("/weather")
+async def root():
+    logger.info(f"Received function call from client")
+    try:
+        return weatherAPI.get('-6.266155', '53.350140') # Dublin
+    except Exception as e:
+        logger.error("Error hitting weather endpoint")
+        raise
+
 
 if __name__ == "__main__":
     logger.info("Starting FastAPI server...")
