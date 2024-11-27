@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import logging
@@ -19,7 +19,7 @@ class Message(BaseModel):
 
 app = FastAPI()
 
-# Configure CORS with logging
+# Configure CORS
 origins = ["*"]  # In production, replace with actual frontend URL
 app.add_middleware(
     CORSMiddleware,
@@ -38,17 +38,49 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/")
 async def root():
-    logger.info("Root endpoint accessed")
     return {"message": "Hello World"}
 
 @app.post("/echo")
 async def echo_message(message: Message):
     logger.info(f"Received message in echo endpoint: {message.text}")
+    return {"message": f"'{message.text}' sent from server"}
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: list[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+
+connection_manager = ConnectionManager()
+
+
+@app.websocket("/ws/location")
+async def websocket_endpoint(websocket: WebSocket):
+    await connection_manager.connect(websocket)
     try:
-        return {"message": f"'{message.text}' sent from server"}
+        while True:
+            data = await websocket.receive_text()
+            logging.info(f"Received data: {data}")
+            await connection_manager.broadcast(f"Received location: {data}")
+    except WebSocketDisconnect:
+        connection_manager.disconnect(websocket)
+        logging.info("WebSocket disconnected")
     except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
-        raise
+        logging.error(f"Unexpected error: {e}")
+        await websocket.close(code=1006)
 
 weather = weatherAPI()
 @app.get("/weather")

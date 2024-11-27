@@ -1,169 +1,218 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, Text, Platform, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-
+import * as Location from 'expo-location';
 
 export default function MapScreen({ navigation }) {
-  const [inputText, setInputText] = useState('');
-  const [serverResponse, setServerResponse] = useState('');
+    const [webSocket, setWebSocket] = useState(null);
+    const [location, setLocation] = useState(null); // No hardcoded initial location
+    const [errorMessage, setErrorMessage] = useState('');
+    const mapRef = useRef(null); // Reference to the MapView
 
-  const initialRegion = {
-    latitude: 53.3498,
-    longitude: -6.2603,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
-  };
+    // WebSocket Setup
+    useEffect(() => {
+        const wsUrl = `${process.env.EXPO_PUBLIC_API_URL.replace(/^http/, 'ws')}/ws/location`;
+        console.log('Connecting to WebSocket:', wsUrl);
 
-  const sendToServer = async () => {
-    try {
-      const baseUrl = Platform.OS === 'web'
-        ? 'http://localhost:8000'
-        : process.env.EXPO_PUBLIC_API_URL;
-      console.log(`Sending request to ${baseUrl}/echo`);
+        const socket = new WebSocket(wsUrl);
 
-      const response = await fetch(`${baseUrl}/echo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: inputText }),
-      });
+        socket.onopen = () => {
+            console.log('WebSocket connection opened');
+            setWebSocket(socket);
+        };
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        socket.onmessage = (event) => {
+            console.log('Message from server:', event.data);
+        };
 
-      const data = await response.json();
-      console.log('Server response:', data);
-      setServerResponse(data.message);
-    } catch (error) {
-      console.error('Error details:', error);
-      setServerResponse(`Error: ${error.message}`);
-    }
-  };
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
 
-  const renderMap = () => {
-    if (Platform.OS === 'web') {
-      return (
-        <View style={[styles.map, { backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center' }]}>
-          <Text>Map Placeholder - Maps functionality limited in web version</Text>
-        </View>
-      );
-    }
+        socket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        return () => {
+            socket.close();
+        };
+    }, []);
+
+    // Location Setup
+    useEffect(() => {
+        (async () => {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMessage('Permission to access location was denied.');
+                return;
+            }
+
+            // Fetch initial location
+            const currentLocation = await Location.getCurrentPositionAsync({
+                accuracy: Location.Accuracy.BestForNavigation,
+            });
+            const { latitude, longitude } = currentLocation.coords;
+            setLocation({ latitude, longitude });
+
+            // Set up continuous location tracking
+            const locationSubscription = await Location.watchPositionAsync(
+                {
+                    accuracy: Location.Accuracy.BestForNavigation,
+                    timeInterval: 5000, // Update every 5 seconds
+                    distanceInterval: 5, // Update if device moves 5 meters
+                },
+                (newLocation) => {
+                    const { latitude, longitude } = newLocation.coords;
+                    console.log('Updated Location:', { latitude, longitude });
+                    setLocation({ latitude, longitude });
+
+                    // Animate the map to the new region
+                    if (mapRef.current) {
+                        mapRef.current.animateToRegion(
+                            {
+                                latitude,
+                                longitude,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                            },
+                            1000 // Animation duration in milliseconds
+                        );
+                    }
+                }
+            );
+
+            return () => locationSubscription.remove();
+        })();
+    }, []);
+
+    // Function to Send Location to WebSocket
+    const sendLocation = () => {
+        if (webSocket && location) {
+            const locationData = JSON.stringify(location);
+            webSocket.send(locationData);
+            console.log('Sent location:', locationData);
+        } else if (!location) {
+            Alert.alert('Location not available', 'Please wait for the GPS to fetch your location.');
+        } else {
+            Alert.alert('WebSocket not connected', 'Please wait for the WebSocket connection to establish.');
+        }
+    };
 
     return (
-      <View style={styles.container}>
-        <MapView style={styles.map} initialRegion={initialRegion}>
-          <Marker style={styles.marker}
-            coordinate={{ latitude: 53.3498, longitude: -6.2603 }}
-            title="Dublin"
-            description="Marker description"
-          />
-        </MapView>
-        <TouchableOpacity style={styles.TouchableOpacity} onPress={() => navigation.navigate('LoginScreen')}
-          color="#841584">
-          <Text>Log In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.TouchableOpacity1} onPress={() => navigation.navigate('WeatherScreen')}
-          color="#841584">
-          <Text>Weather</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.container}>
+            {errorMessage ? (
+                <Text style={styles.error}>{errorMessage}</Text>
+            ) : location ? (
+                <>
+                    <MapView
+                        ref={mapRef}
+                        style={styles.map}
+                        initialRegion={{
+                            latitude: location.latitude,
+                            longitude: location.longitude,
+                            latitudeDelta: 0.01,
+                            longitudeDelta: 0.01,
+                        }}
+                    >
+                        <Marker
+                            coordinate={location}
+                            title="Your Location"
+                            description="Real-time location"
+                        />
+                        <Marker
+                            coordinate={{ latitude: 53.3498, longitude: -6.2603 }}
+                            title="Dublin"
+                            description="Marker description"
+                        />
+                    </MapView>
+                    <TouchableOpacity style={styles.sendButton} onPress={sendLocation}>
+                        <Text style={styles.buttonText}>Send Location</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.TouchableOpacity}
+                        onPress={() => navigation.navigate('LoginScreen')}
+                    >
+                        <Text style={styles.buttonText}>Log In</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.TouchableOpacity1}
+                        onPress={() => navigation.navigate('WeatherScreen')}
+                    >
+                        <Text style={styles.buttonText}>Weather</Text>
+                    </TouchableOpacity>
+                </>
+            ) : (
+                <Text style={styles.loadingText}>Fetching your location...</Text>
+            )}
+        </View>
     );
-  };
-
-  return (
-    <View style={styles.container}>
-      {renderMap()}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Enter text to send to server"
-        />
-        <Button title="Send" onPress={sendToServer} />
-        {serverResponse ? (
-          <Text style={styles.response}>{serverResponse}</Text>
-        ) : null}
-      </View>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    ...(Platform.OS === 'web' ? {
-      height: '100vh',
-    } : {}),
-  },
-  marker: {
-    position: 'absolute'
-  },
-  map: {
-    flex: 0.7,
-    minHeight: 300,
-  },
-  inputContainer: {
-    ...(Platform.OS === 'web' ? {
-      height: '30vh',
-    } : {
-      flex: 0.3,
-    }),
-    padding: 20,
-    backgroundColor: 'white',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  response: {
-    marginTop: 10,
-    fontSize: 16,
-  },
-  container: {
-    flex: 1,
-  },
-  map: {
-    flex: 1,
-  },
-  TouchableOpacity: {
-    position: 'absolute',
-    alignItems: 'center',
-    left: '70%',
-    top: '0%',
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 40,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  TouchableOpacity1: {
-    position: 'absolute',
-    alignItems: 'center',
-    left: '0%',
-    top: '0%',
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 40,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  TouchableOpacityText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
+    container: {
+        flex: 1,
+        ...(Platform.OS === 'web' ? { height: '100vh' } : {}),
+    },
+    map: {
+        flex: 1,
+        minHeight: 300,
+    },
+    sendButton: {
+        position: 'absolute',
+        bottom: 20,
+        left: '50%',
+        transform: [{ translateX: -50 }],
+        backgroundColor: '#007bff',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    TouchableOpacity: {
+        position: 'absolute',
+        alignItems: 'center',
+        left: '70%',
+        top: '0%',
+        backgroundColor: '#007bff',
+        paddingVertical: 10,
+        paddingHorizontal: 40,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    TouchableOpacity1: {
+        position: 'absolute',
+        alignItems: 'center',
+        left: '0%',
+        top: '0%',
+        backgroundColor: '#007bff',
+        paddingVertical: 10,
+        paddingHorizontal: 40,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    error: {
+        flex: 1,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: 18,
+        color: 'red',
+    },
+    loadingText: {
+        flex: 1,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        fontSize: 18,
+    },
 });

@@ -5,6 +5,7 @@ Fast API Python backend
 
 ```bash
 cd server 
+pip install -r requirements.txt
 python main.py
 ```
 
