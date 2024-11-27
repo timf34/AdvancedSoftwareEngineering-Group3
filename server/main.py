@@ -4,46 +4,109 @@ from pydantic import BaseModel
 import logging
 import uvicorn
 import sys
+from login import Login
 from apis.weatherApi import weatherAPI
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
+
+class Server:
+    def __init__(self):
+        # Configure logging
+        self.logger = self.configure_logging()
+
+        # Initialize FastAPI app
+        self.app = FastAPI()
+
+        # Instantiate components
+        self.login_logic = Login(self.app, self.logger)
+        self.connection_manager = ConnectionManager()
+        self.weather_api = weatherAPI()
+
+        # Configure CORS
+        self.configure_cors()
+
+        # Add middleware
+        self.add_middlewares()
+
+        # Register routes
+        self.register_routes()
+
+        # Login function
+        self.login_logic.handle_login()
+
+    def configure_logging(self):
+        logging.basicConfig(
+            level=logging.INFO,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+            handlers=[logging.StreamHandler(sys.stdout)],
+        )
+        return logging.getLogger(__name__)
+
+    def configure_cors(self):
+        origins = ["*"]  # In production, replace with actual frontend URL
+        self.app.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+    def add_middlewares(self):
+        @self.app.middleware("http")
+        async def log_requests(request: Request, call_next):
+            self.logger.info(f"Incoming {request.method} request to {request.url}")
+            response = await call_next(request)
+            self.logger.info(f"Returning response with status code: {response.status_code}")
+            return response
+
+    def register_routes(self):
+        @self.app.get("/")
+        async def root():
+            self.logger.info("Root endpoint accessed")
+            return {"message": "Hello World"}
+
+        @self.app.post("/echo")
+        async def echo_message(message: Message):
+            self.logger.info(f"Received message in echo endpoint: {message.text}")
+            try:
+                return {"message": f"'{message.text}' sent from server"}
+            except Exception as e:
+                self.logger.error(f"Error processing message: {str(e)}")
+                raise
+
+        @self.app.get("/weather")
+        async def get_weather():
+            self.logger.info(f"Received weather API request")
+            try:
+                # Example coordinates for Dublin
+                return self.weather_api.get(lat="-6.266155", lng="53.350140")
+            except Exception as e:
+                self.logger.error("Error hitting weather endpoint")
+                raise
+
+        @self.app.websocket("/ws/location")
+        async def websocket_endpoint(websocket: WebSocket):
+            await self.connection_manager.connect(websocket)
+            try:
+                while True:
+                    data = await websocket.receive_text()
+                    self.logger.info(f"Received data: {data}")
+                    await self.connection_manager.broadcast(f"Received location: {data}")
+            except WebSocketDisconnect:
+                self.connection_manager.disconnect(websocket)
+                self.logger.info("WebSocket disconnected")
+            except Exception as e:
+                self.logger.error(f"Unexpected error: {e}")
+                await websocket.close(code=1006)
+
+    def run(self, host="0.0.0.0", port=8000):
+        self.logger.info("Starting FastAPI server...")
+        uvicorn.run(self.app, host=host, port=port, log_level="debug")
+
 
 class Message(BaseModel):
     text: str
 
-app = FastAPI()
-
-# Configure CORS
-origins = ["*"]  # In production, replace with actual frontend URL
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    logger.info(f"Incoming {request.method} request to {request.url}")
-    response = await call_next(request)
-    logger.info(f"Returning response with status code: {response.status_code}")
-    return response
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.post("/echo")
-async def echo_message(message: Message):
-    logger.info(f"Received message in echo endpoint: {message.text}")
-    return {"message": f"'{message.text}' sent from server"}
 
 class ConnectionManager:
     def __init__(self):
@@ -64,35 +127,6 @@ class ConnectionManager:
             await connection.send_text(message)
 
 
-connection_manager = ConnectionManager()
-
-
-@app.websocket("/ws/location")
-async def websocket_endpoint(websocket: WebSocket):
-    await connection_manager.connect(websocket)
-    try:
-        while True:
-            data = await websocket.receive_text()
-            logging.info(f"Received data: {data}")
-            await connection_manager.broadcast(f"Received location: {data}")
-    except WebSocketDisconnect:
-        connection_manager.disconnect(websocket)
-        logging.info("WebSocket disconnected")
-    except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        await websocket.close(code=1006)
-
-weather = weatherAPI()
-@app.get("/weather")
-async def root():
-    logger.info(f"Received function call from client")
-    try:
-        return weather.get(lat='-6.266155', lng='53.350140') # Dublin
-    except Exception as e:
-        logger.error("Error hitting weather endpoint")
-        raise
-
-
 if __name__ == "__main__":
-    logger.info("Starting FastAPI server...")
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    server = Server()
+    server.run()
