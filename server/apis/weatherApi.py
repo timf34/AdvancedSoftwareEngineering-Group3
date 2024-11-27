@@ -27,5 +27,5 @@ class weatherAPI():# (BaseAPI):
 
     
 # To test
-w = weatherAPI()
-w.get('53.350140', '-6.266155')
+# w = weatherAPI()
+# w.get('53.350140', '-6.266155')

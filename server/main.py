@@ -50,11 +50,12 @@ async def echo_message(message: Message):
         logger.error(f"Error processing message: {str(e)}")
         raise
 
+weather = weatherAPI()
 @app.get("/weather")
 async def root():
     logger.info(f"Received function call from client")
     try:
-        return weatherAPI.get('-6.266155', '53.350140') # Dublin
+        return weather.get(lat='-6.266155', lng='53.350140') # Dublin
     except Exception as e:
         logger.error("Error hitting weather endpoint")
         raise
