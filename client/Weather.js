@@ -5,7 +5,8 @@ import { useReducedMotion } from 'react-native-reanimated';
 
 
 export default function WeatherScreen({ navigation }) {
-    
+    const [serverResponse, setServerResponse] = useState('');
+
     const fetchFromServer = async () => {
         try {
             const baseUrl = Platform.OS === 'web'
@@ -15,10 +16,6 @@ export default function WeatherScreen({ navigation }) {
 
             const response = await fetch(`${baseUrl}/weather`, {
                 method: 'GET',
-                // headers: {
-                //     'Content-Type': 'application/json',
-                // },
-                // body: JSON.stringify({ text: inputText }),
             });
 
             if (!response.ok) {
@@ -27,6 +24,9 @@ export default function WeatherScreen({ navigation }) {
 
             const data = await response.json();
             console.log('Server response:', data);
+            setServerResponse("Data has been queried successfully!")
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            setServerResponse("")
         } catch (error) {
             console.error('Error details:', error);
         }
@@ -34,15 +34,15 @@ export default function WeatherScreen({ navigation }) {
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-
             <SafeAreaView style={styles.container}>
-
                 <TouchableOpacity style={styles.TouchableOpacity} onPress={fetchFromServer}
                     color="#841584">
                     <Text>Weather Data</Text>
                 </TouchableOpacity>
-
             </SafeAreaView>
+            <View style={styles.container}>
+                <Text style={styles.response}>{serverResponse}</Text>
+            </View>
         </View>
     );
 }
