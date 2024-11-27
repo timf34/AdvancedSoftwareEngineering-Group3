@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Alert, Platform } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 
@@ -119,9 +119,26 @@ export default function MapScreen({ navigation }) {
                             title="Your Location"
                             description="Real-time location"
                         />
+                        <Marker
+                            coordinate={{ latitude: 53.3498, longitude: -6.2603 }}
+                            title="Dublin"
+                            description="Marker description"
+                        />
                     </MapView>
                     <TouchableOpacity style={styles.sendButton} onPress={sendLocation}>
                         <Text style={styles.buttonText}>Send Location</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.TouchableOpacity}
+                        onPress={() => navigation.navigate('LoginScreen')}
+                    >
+                        <Text style={styles.buttonText}>Log In</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.TouchableOpacity1}
+                        onPress={() => navigation.navigate('WeatherScreen')}
+                    >
+                        <Text style={styles.buttonText}>Weather</Text>
                     </TouchableOpacity>
                 </>
             ) : (
@@ -134,9 +151,11 @@ export default function MapScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        ...(Platform.OS === 'web' ? { height: '100vh' } : {}),
     },
     map: {
         flex: 1,
+        minHeight: 300,
     },
     sendButton: {
         position: 'absolute',
@@ -152,6 +171,36 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         textAlign: 'center',
+    },
+    TouchableOpacity: {
+        position: 'absolute',
+        alignItems: 'center',
+        left: '70%',
+        top: '0%',
+        backgroundColor: '#007bff',
+        paddingVertical: 10,
+        paddingHorizontal: 40,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    TouchableOpacity1: {
+        position: 'absolute',
+        alignItems: 'center',
+        left: '0%',
+        top: '0%',
+        backgroundColor: '#007bff',
+        paddingVertical: 10,
+        paddingHorizontal: 40,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 5,
     },
     error: {
         flex: 1,
