@@ -18,7 +18,7 @@ class Message(BaseModel):
 
 app = FastAPI()
 
-# Configure CORS with logging
+# Configure CORS
 origins = ["*"]  # In production, replace with actual frontend URL
 app.add_middleware(
     CORSMiddleware,
@@ -37,18 +37,12 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/")
 async def root():
-    logger.info("Root endpoint accessed")
     return {"message": "Hello World"}
 
 @app.post("/echo")
 async def echo_message(message: Message):
     logger.info(f"Received message in echo endpoint: {message.text}")
-    try:
-        return {"message": f"'{message.text}' sent from server"}
-    except Exception as e:
-        logger.error(f"Error processing message: {str(e)}")
-        raise
-
+    return {"message": f"'{message.text}' sent from server"}
 
 class ConnectionManager:
     def __init__(self):
@@ -69,21 +63,23 @@ class ConnectionManager:
             await connection.send_text(message)
 
 
-connection = ConnectionManager()
+connection_manager = ConnectionManager()
 
 
 @app.websocket("/ws/location")
 async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+    await connection_manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
             logging.info(f"Received data: {data}")
-            await manager.broadcast(f"Received location: {data}")
+            await connection_manager.broadcast(f"Received location: {data}")
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        connection_manager.disconnect(websocket)
         logging.info("WebSocket disconnected")
-
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        await websocket.close(code=1006)
 
 if __name__ == "__main__":
     logger.info("Starting FastAPI server...")
