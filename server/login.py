@@ -1,16 +1,20 @@
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import logging
-import uvicorn
-import sys
 
 class Login():
-    def __init__(self):
-        pass
 
-    def get(self, function):
-        pass
+    def __init__(self, api):
+        self.app = api
 
-if __name__ == '__main__':
-    user_details = Login.get('details')
+    def handle_login(self):
+        @self.app.post("/login")
+        async def login_data(login: Login):
+            self.logger.info(f"Received login attempt: {login.username}")
+            try:
+                return {"login details": f"'{login.username, login.password}' sent from server"}
+            except Exception as e:
+                self.logger.error(f"Error processing login: {str(e)}")
+                raise
+
+class LoginDetails(BaseModel):
+    username: str
+    password: str
