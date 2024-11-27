@@ -27,10 +27,8 @@ export default function WeatherScreen({ navigation }) {
 
             const data = await response.json();
             console.log('Server response:', data);
-            setServerResponse(data.message);
         } catch (error) {
             console.error('Error details:', error);
-            setServerResponse(`Error: ${error.message}`);
         }
     };
 
