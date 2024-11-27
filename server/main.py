@@ -64,4 +64,4 @@ async def login_data(login: Login):
 
 if __name__ == "__main__":
     logger.info("Starting FastAPI server...")
-    uvicorn.run(app, host="10.6.107.53", port=8000, log_level="debug") # changing host to Keith ipv4 address
+    uvicorn.run(app, host="10.6.124.10", port=8000, log_level="debug") # changing host to Keith ipv4 address
