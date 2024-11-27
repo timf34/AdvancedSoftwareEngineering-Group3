@@ -64,6 +64,10 @@ export default function MapScreen({ navigation }) {
           color="#841584">
           <Text>Log In</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.TouchableOpacity1} onPress={() => navigation.navigate('WeatherScreen')}
+          color="#841584">
+          <Text>Weather</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -131,6 +135,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     left: '70%',
+    top: '0%',
+    backgroundColor: '#007bff',
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  TouchableOpacity1: {
+    position: 'absolute',
+    alignItems: 'center',
+    left: '0%',
     top: '0%',
     backgroundColor: '#007bff',
     paddingVertical: 10,
