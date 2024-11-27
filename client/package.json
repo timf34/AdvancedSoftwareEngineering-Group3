@@ -25,7 +25,7 @@
     "react-native-websocket": "^1.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.24.0"
   },
   "private": true
 }
