@@ -18,7 +18,7 @@ class Login():
         # Load environment vars
         #load_dotenv()
         self.supabase_url = os.getenv("SUPABASE_URL")
-        self.supabase_key = os.getenv("SUPABASE_ANON_KEY")
+        self.supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
 
         # Init Supabase Client
         self.supabase: Client = create_client(self.supabase_url, self.supabase_key)
