@@ -35,7 +35,7 @@ class Login():
                 user = self.get_user_by_username(login.username)
 
                 if not user:
-                    self.logger.warning(f"User not fond: {login.username}")
+                    self.logger.warning(f"User not found: {login.username}")
                     raise HTTPException(status_code=400, detail="Invalid username/password")
                 
                 self.logger.info(f"User data found for {login.username}")
