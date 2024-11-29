@@ -6,5 +6,5 @@ supabase
 numpy
 passlib
 python-dotenv
-#passlib[bcrypt]
 passlib
+websockets

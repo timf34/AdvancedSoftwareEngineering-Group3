@@ -62,7 +62,7 @@ class Server:
         @self.app.get("/")
         async def root():
             self.logger.info("Root endpoint accessed")
-            return {"message": "Hello World"}
+            return {"message": "Hello from main"}
 
         @self.app.post("/echo")
         async def echo_message(message: Message):
