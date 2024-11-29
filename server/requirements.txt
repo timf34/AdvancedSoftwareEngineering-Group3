@@ -1,3 +1,9 @@
 fastapi
 pydantic
 uvicorn
+requests
+supabase
+numpy
+passlib
+python-dotenv
+passlib[bcrypt]

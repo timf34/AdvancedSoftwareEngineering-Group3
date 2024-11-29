@@ -3,3 +3,5 @@
 ./assets/stop_times.txt
 
 *.pyc
+
+*.env
