@@ -39,8 +39,10 @@ export default function LoginScreen({ navigation }) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
   
+        // Await response and print message from server
         const data = await response.json();
-        alert(JSON.stringify(data))
+        alert(data.message)
+        
         console.log('Server response:', data);
         setServerResponse(data.message);
       } catch (error) {

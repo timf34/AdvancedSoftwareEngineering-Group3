@@ -6,7 +6,7 @@ import uvicorn
 import sys
 from login import Login
 from apis.weatherApi import weatherAPI
-
+from dotenv import load_dotenv
 
 class Server:
     def __init__(self):
@@ -31,7 +31,7 @@ class Server:
         self.register_routes()
 
         # Login function
-        self.login_logic.handle_login()
+        #self.login_logic.handle_login()
 
     def configure_logging(self):
         logging.basicConfig(
@@ -126,7 +126,9 @@ class ConnectionManager:
         for connection in self.active_connections:
             await connection.send_text(message)
 
+# Instantiate server
+server = Server()
+app = server.app
 
 if __name__ == "__main__":
-    server = Server()
     server.run()
