@@ -8,3 +8,4 @@ passlib
 python-dotenv
 passlib
 websockets
+bcrypts

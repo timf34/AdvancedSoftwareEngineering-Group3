@@ -26,6 +26,6 @@ npx expo start
 ## Client server communication setup
 1. Copy `.env.example` to `.env`
 2. Find your IP address:
-   - Windows: Run `ipconfig` and use IPv4 Address under "Wireless LAN adapter Wi-Fi"
+   - Windows: Run `ipconfig` and use IPv4 Address under "Wireless LAN adapter Wi-Fi" and append `:8000`
    - Mac/Linux: Run `ifconfig` or `ip addr`
 3. Update `EXPO_PUBLIC_API_URL` in `.env` with your IP

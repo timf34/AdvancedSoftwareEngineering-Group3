@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 import logging
 from fastapi import HTTPException
+
 class Login():
 
     def __init__(self, api, logger: logging.Logger):
@@ -16,7 +17,7 @@ class Login():
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
         # Load environment vars
-        #load_dotenv()
+        load_dotenv()
         self.supabase_url = os.getenv("SUPABASE_URL")
         self.supabase_key = os.getenv("SUPABASE_SERVICE_KEY")
 

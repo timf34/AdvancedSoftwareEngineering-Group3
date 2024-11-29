@@ -7,6 +7,7 @@ import sys
 from login import Login
 from apis.weatherApi import weatherAPI
 from dotenv import load_dotenv
+
 class Server:
     def __init__(self):
         # Configure logging
