@@ -29,3 +29,5 @@ npx expo start
    - Windows: Run `ipconfig` and use IPv4 Address under "Wireless LAN adapter Wi-Fi" and append `:8000`
    - Mac/Linux: Run `ifconfig` or `ip addr`
 3. Update `EXPO_PUBLIC_API_URL` in `.env` with your IP
+
+**Here's an example: `EXPO_PUBLIC_API_URL=http://192.168.13.1:8000`**
