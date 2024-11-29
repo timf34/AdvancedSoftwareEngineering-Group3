@@ -13,13 +13,10 @@ class Login():
     def __init__(self, api, logger: logging.Logger):
         self.app = api
         self.logger = logger
-
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-        
-        
         # Load environment vars
-        load_dotenv()
+        #load_dotenv()
         self.supabase_url = os.getenv("SUPABASE_URL")
         self.supabase_key = os.getenv("SUPABASE_ANON_KEY")
 
@@ -43,8 +40,6 @@ class Login():
                 
                 self.logger.info(f"User data found for {login.username}")
 
-
-
                 # Verify password using bcrypt
                 if not self.verify_password(login.password, user['hashed_password']):
                     raise HTTPException(status_code=400, detail="Invalid username/password")
@@ -61,10 +56,12 @@ class Login():
         try:
             response = self.supabase.table("user_details").select("*").eq("username", username).execute()
 
-            if response.error:
-                self.logger.error(f"error querying Database: {response.error.message}")
+            #print(f"Supabase response: {response}")
 
             data = response.data
+
+            #print(f"DATA AFTER DATA=... {data}")
+
             if len(data) > 0:
                 return data[0]
             else: 

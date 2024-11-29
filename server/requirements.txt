@@ -6,4 +6,5 @@ supabase
 numpy
 passlib
 python-dotenv
-passlib[bcrypt]
+#passlib[bcrypt]
+passlib
