@@ -36,14 +36,17 @@ class Login():
                 user = self.get_user_by_username(login.username)
 
                 if not user:
-                    self.logger.warning(f"User not found: {login.username}")
-                    raise HTTPException(status_code=400, detail="Invalid username/password")
+                    self.logger.warning(f"User not fond: {login.username}")
+                    # raise HTTPException(status_code=400, detail="Invalid username/password")
+                    return {"message": f"Invalid username"}
                 
                 self.logger.info(f"User data found for {login.username}")
 
+
                 # Verify password using bcrypt
                 if not self.verify_password(login.password, user['hashed_password']):
-                    raise HTTPException(status_code=400, detail="Invalid username/password")
+                    return {"message": f"Invalid password"}
+                    # raise HTTPException(status_code=400, detail="Invalid username/password")
                 
                 # return success message
                 return {"message": f"Login successful for user: {login.username}"}
